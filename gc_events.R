@@ -1,5 +1,10 @@
 library(shiny)
-#library(leaflet)
+library(leaflet)
+library(ggplot2)
+library(dplyr)
+library(maps)
+library(maptools)
+data("us.cities")
 
 # Define UI
 ui <- fluidPage (
@@ -28,7 +33,8 @@ ui <- fluidPage (
   ),
   
   mainPanel(
-    textOutput("screen_output")
+    textOutput("screen_output"),
+    leafletOutput("grinnell_map")
   )
   
 )
@@ -39,6 +45,10 @@ server <- function(input, output, session) {
     output$screen_output <- renderText({
       "You have hit the Events Screen button."}
       )
+    output$grinnell_map <- renderLeaflet({
+      leaflet() %>% setView(lng = -92.718, lat = 41.749, zoom = 15) %>%
+        addTiles()
+      })
     })
   
   observeEvent(input$event_stats, { 
