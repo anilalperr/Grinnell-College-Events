@@ -6,6 +6,13 @@ library(maps)
 library(maptools)
 data("us.cities")
 
+# values to store the location information
+address = c()
+latitude = c()
+longitude = c()
+descriptions = c()
+category = c()
+
 # Define UI
 ui <- fluidPage (
   titlePanel(title = "Welcome to the Grinnell College Events Page!"),
@@ -32,7 +39,28 @@ ui <- fluidPage (
     tabPanel(
       title = "Add Event",
       value = "add_event",
-      "add event"
+     
+       textInput(inputId = "event_address:",
+                label = "Enter the Address"),
+     
+       textInput(inputId = "description",
+                label = "Event Description:"),
+      
+      selectInput(inputId = '',
+                  label = "Select Event Category",
+                  choices = c("Party", "Academic", "Sports", "Casual")),
+     
+       "You can find the exact latitude and longitude values by entering the event address to this link:",
+      a("https://developers.google.com/maps/documentation/geocoding/overview", href= "https://developers.google.com/maps/documentation/geocoding/overview"),
+      
+      textInput(inputId = "latitude",
+                label = "Enter the Latitude:"),
+      
+      textInput(inputId = "longitude",
+                label = "Enter the longitude:"),
+      
+      actionButton(inputId= "submit_button",
+                   label = "Submit the Event")
     ), 
     
     tabPanel(
@@ -48,7 +76,7 @@ ui <- fluidPage (
 server <- function(input, output, session) {
   output$grinnell_map <- renderLeaflet({
     leaflet() %>% setView(lng = -92.718, lat = 41.749, zoom = 15) %>%
-      addTiles()
+      addTiles() 
   })
 }
 
