@@ -37,9 +37,9 @@ ui <- fluidPage (
                 label = "Enter the Address"),
      
        textInput(inputId = "description",
-                label = "Event Description:"),
+                label = "Event Description:"), 
       
-      selectInput(inputId = "select_category",
+      selectInput(inputId = " <- category",
                   label = "Select Event Category",
                   choices = c("Party", "Academic", "Sports", "Casual")),
      
@@ -53,7 +53,9 @@ ui <- fluidPage (
                 label = "Enter the longitude:"),
       
       actionButton(inputId= "submit_button",
-                   label = "Submit the Event")
+                   label = "Submit the Event"),
+      
+      span(textOutput("message"), style="color:red")
     ), 
     
     tabPanel(
@@ -70,17 +72,49 @@ server <- function(input, output, session) {
   
   #The Events Screen Tab
   output$grinnell_map <- renderLeaflet({
-    leaflet() %>% setView(lng = -92.718, lat = 41.749, zoom = 15) %>%
-      addTiles() 
+    if (nrow(event_df) > 0) {
+      leaflet(data = event_df) %>% setView(lng = -92.718, lat = 41.749, zoom = 15) %>%
+        addTiles() %>% addMarkers(lng = ~long, lat = ~lat,
+                                  label = ~paste(address),
+                                  popup = ~paste("Address:", address))
+    } else {
+      leaflet() %>% setView(lng = -92.718, lat = 41.749, zoom = 15) %>%
+        addTiles() 
+    }
   })
   
   #The Add Event Tab
   observeEvent(input$submit_button, {
-          updateTextInput(session, "event_address", value="")
-          updateTextInput(session, "description", value="")
-          updateTextInput(session, "latitude", value="")
-          updateTextInput(session, "longitude", value="")
-          updateSelectInput(session, "select_category", selected="Party")
+          if (validateAddress(input$event_address) && validateDesc(input$description) && validateLat(input$latitude) && validateLon(input$longitude)) {
+              
+              event_df[nrow(event_df)+1,] <- c(input$event_address, input$decription, input$category, as.numeric(input$latitude), as.numeric(input$longitude))
+              
+              updateTextInput(session, "event_address", value="")
+              updateTextInput(session, "description", value="")
+              updateTextInput(session, "latitude", value="")
+              updateTextInput(session, "longitude", value="")
+              updateSelectInput(session, "category", selected="Party")
+              
+              output$message <- renderText("")
+          } else {
+            if (!validateAddress(input$event_address)) {
+              
+              output$message <- renderText("Please enter an address.")
+              
+            } else if (!validateDesc(input$description)) {
+              
+              output$message <- renderText("Please provide a description.")
+              
+            } else if (!validateLat(input$latitude)) {
+              
+              output$message <- renderText("Please make sure that the latitude is numeric and between -90 and 90 (inclusive)")
+              
+            } else {
+              
+              output$message <- renderText("Please make sure that the longitude is numeric and between -180 and 180 (inclusive)")
+              
+            }
+          }
     })
   
 }
