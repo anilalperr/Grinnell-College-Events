@@ -4,7 +4,6 @@ library(ggplot2)
 library(dplyr)
 library(maps)
 library(maptools)
-data("us.cities")
 
 # values to store the location information
 address = c()
@@ -40,13 +39,13 @@ ui <- fluidPage (
       title = "Add Event",
       value = "add_event",
      
-       textInput(inputId = "event_address:",
+       textInput(inputId = "event_address",
                 label = "Enter the Address"),
      
        textInput(inputId = "description",
                 label = "Event Description:"),
       
-      selectInput(inputId = '',
+      selectInput(inputId = "select_category",
                   label = "Select Event Category",
                   choices = c("Party", "Academic", "Sports", "Casual")),
      
@@ -74,10 +73,22 @@ ui <- fluidPage (
 
 # Define server logic --
 server <- function(input, output, session) {
+  
+  #The Events Screen Tab
   output$grinnell_map <- renderLeaflet({
     leaflet() %>% setView(lng = -92.718, lat = 41.749, zoom = 15) %>%
       addTiles() 
   })
+  
+  #The Add Event Tab
+  observeEvent(input$submit_button, {
+          updateTextInput(session, "event_address", value="")
+          updateTextInput(session, "description", value="")
+          updateTextInput(session, "latitude", value="")
+          updateTextInput(session, "longitude", value="")
+          updateSelectInput(session, "select_category", selected="Party")
+    })
+  
 }
 
 # Run the app
