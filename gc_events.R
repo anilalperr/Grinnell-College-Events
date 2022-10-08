@@ -39,7 +39,7 @@ ui <- fluidPage (
        textInput(inputId = "description",
                 label = "Event Description:"), 
       
-      selectInput(inputId = " <- category",
+      selectInput(inputId = "category",
                   label = "Select Event Category",
                   choices = c("Party", "Academic", "Sports", "Casual")),
      
@@ -87,7 +87,7 @@ server <- function(input, output, session) {
   observeEvent(input$submit_button, {
           if (validateAddress(input$event_address) && validateDesc(input$description) && validateLat(input$latitude) && validateLon(input$longitude)) {
               
-              event_df[nrow(event_df)+1,] <- c(input$event_address, input$decription, input$category, as.numeric(input$latitude), as.numeric(input$longitude))
+              event_df[nrow(event_df)+1,] <- c(input$event_address, input$description, input$category, as.numeric(input$latitude), as.numeric(input$longitude))
               
               updateTextInput(session, "event_address", value="")
               updateTextInput(session, "description", value="")
