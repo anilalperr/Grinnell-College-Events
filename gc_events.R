@@ -4,13 +4,7 @@ library(ggplot2)
 library(dplyr)
 library(maps)
 library(maptools)
-
-# values to store the location information
-address = c()
-latitude = c()
-longitude = c()
-descriptions = c()
-category = c()
+source("helper.R")
 
 # Define UI
 ui <- fluidPage (
