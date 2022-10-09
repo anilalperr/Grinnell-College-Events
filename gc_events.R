@@ -69,15 +69,18 @@ ui <- fluidPage (
 
 # Define server logic --
 server <- function(input, output, session) {
+  event_data <- reactiveVal(event_df)
   
   #The Events Screen Tab
   output$grinnell_map <- renderLeaflet({
-    if (nrow(event_df) > 0) {
-      leaflet(data = event_df) %>% setView(lng = -92.718, lat = 41.749, zoom = 15) %>%
+    if (nrow(event_data()) > 0) {
+      print("A")
+      leaflet(data = event_data()) %>% setView(lng = -92.718, lat = 41.749, zoom = 15) %>%
         addTiles() %>% addMarkers(lng = ~long, lat = ~lat,
                                   label = ~paste(address),
                                   popup = ~paste("Address:", address))
     } else {
+      print("B")
       leaflet() %>% setView(lng = -92.718, lat = 41.749, zoom = 15) %>%
         addTiles() 
     }
@@ -88,6 +91,7 @@ server <- function(input, output, session) {
           if (validateAddress(input$event_address) && validateDesc(input$description) && validateLat(input$latitude) && validateLon(input$longitude)) {
               
               event_df[nrow(event_df)+1,] <- c(input$event_address, input$description, input$category, as.numeric(input$latitude), as.numeric(input$longitude))
+              event_data <- reactiveVal(event_df)
               
               updateTextInput(session, "event_address", value="")
               updateTextInput(session, "description", value="")
