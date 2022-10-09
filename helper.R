@@ -5,12 +5,18 @@ colnames(event_df) <- c_names
 
 validateLat <- function(input) {
   numeric_input = as.numeric(input)
-  return (is.numeric(numeric_input) && (-90 <= numeric_input) && (numeric_input <= 90))
+  if (!is.na(numeric_input)) {
+    return((-90 <= numeric_input) && (numeric_input <= 90))
+  }
+  return (FALSE)
 }
 
 validateLon <- function(input) {
   numeric_input = as.numeric(input)
-  return (is.numeric(numeric_input) && (-180 <= numeric_input) && (numeric_input <= 180))
+  if (!is.na(numeric_input)) {
+    return((-180 <= numeric_input) && (numeric_input <= 180))
+  } 
+  return (FALSE)
 }
 
 validateAddress <- function(input) {
