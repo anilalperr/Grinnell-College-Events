@@ -71,8 +71,15 @@ ui <- fluidPage (
 server <- function(input, output, session) {
   #The Events Screen Tab
   output$grinnell_map <- renderLeaflet({
+    if (nrow(event_df) == 0) {
       leaflet() %>% setView(lng = -92.718, lat = 41.749, zoom = 15) %>%
         addTiles() 
+    } else {
+      leaflet(data=event_df) %>% setView(lng = -92.718, lat = 41.749, zoom = 15) %>%
+        addTiles() %>% addMarkers(lng = ~long, lat = ~lat,
+                                  label = ~paste(address),
+                                  popup = ~paste("Description:", descriptions))
+    }
   })
   
   #The Add Event Tab
@@ -83,6 +90,8 @@ server <- function(input, output, session) {
               
               event_df$lat <- as.numeric(event_df$lat)
               event_df$long <- as.numeric(event_df$long)
+              
+              write.csv(event_df, "events.csv", row.names=FALSE)
               
               leafletProxy("grinnell_map", session) %>%
                 addMarkers(lng = ~long, lat = ~lat,

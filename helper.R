@@ -1,7 +1,5 @@
 # values to store the location information
-event_df <- data.frame(matrix(ncol = 5, nrow = 0))
-c_names <- c("address", "descriptions", "category", "lat", "long")
-colnames(event_df) <- c_names
+event_df <- read.csv("events.csv")
 
 validateLat <- function(input) {
   numeric_input = as.numeric(input)
