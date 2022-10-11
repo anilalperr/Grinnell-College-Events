@@ -59,9 +59,11 @@ ui <- fluidPage (
     ), 
     
     tabPanel(
-      title = "My Events",
-      value = "my_events",
-      "my events"
+      title = "Delete Event",
+      value = "delete_event",
+      #selectInput(inputId = "delete_input",
+       #           label = "Select an event to delete."
+        #          choices = event_df$address)
     )
   ),
   
@@ -78,7 +80,7 @@ server <- function(input, output, session) {
       leaflet(data=event_df) %>% setView(lng = -92.718, lat = 41.749, zoom = 15) %>%
         addTiles() %>% addMarkers(lng = ~long, lat = ~lat,
                                   label = ~paste(address),
-                                  popup = ~paste("Description:", descriptions))
+                                  popup = ~paste("Description:", description))
     }
   })
   
@@ -86,7 +88,7 @@ server <- function(input, output, session) {
   observeEvent(input$submit_button, {
           if (validateAddress(input$event_address) && validateDesc(input$description) && validateLat(input$latitude) && validateLon(input$longitude)) {
               
-              event_df[nrow(event_df)+1,] <- c(input$event_address, input$description, input$category, input$latitude, input$longitude)
+              event_df[nrow(event_df)+1,] <- c(input$event_address, input$description, input$category, input$latitude, input$longitude, nrow(event_df)+1)
               
               event_df$lat <- as.numeric(event_df$lat)
               event_df$long <- as.numeric(event_df$long)
@@ -96,7 +98,7 @@ server <- function(input, output, session) {
               leafletProxy("grinnell_map", session) %>%
                 addMarkers(lng = ~long, lat = ~lat,
                            label = ~paste(address),
-                           popup = ~paste("Description:", descriptions),
+                           popup = ~paste("Description:", description),
                            data = event_df)
               
               updateTextInput(session, "event_address", value="")
