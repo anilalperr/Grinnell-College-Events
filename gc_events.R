@@ -64,6 +64,14 @@ ui <- fluidPage (
     ),
     
     tabPanel(
+      title = "Event Stats",
+      value = "event_stats",
+      selectInput(inputId = "value_comp",
+                  label = "Select Statistics to Compare",
+                  choices = c())
+    ),
+    
+    tabPanel(
       title = "About",
       value = "about_page",
       h1("What is the goal of this app?"),
@@ -74,7 +82,7 @@ ui <- fluidPage (
         your time if you are bored and do not know what is happening on campus."),
       h1("Design Process"),
       h1("Acknowledgements"),
-      p("I would like to thank Professor Fernanda Elliot and our class mentor Jun for their support and
+      p("I would like to thank Professor Fernanda Elliot and our class mentor Jung for their support and
         mentorship.")
     )
   ),
