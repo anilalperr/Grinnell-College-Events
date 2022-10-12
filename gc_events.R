@@ -2,6 +2,7 @@ library(shiny)
 library(leaflet)
 library(ggplot2)
 library(dplyr)
+library(tidyr)
 library(maps)
 library(maptools)
 source("helper.R")
@@ -22,13 +23,7 @@ ui <- fluidPage (
       value = "events_screen",
       leafletOutput("grinnell_map"),
     ),
-    
-    tabPanel(
-      title = "Weekly Event Stats", 
-      value = "event_stats",
-      "weekly event stats"
-    ), 
-    
+
     tabPanel(
       title = "Add Event",
       value = "add_event",
@@ -61,9 +56,26 @@ ui <- fluidPage (
     tabPanel(
       title = "Delete Event",
       value = "delete_event",
-      #selectInput(inputId = "delete_input",
-       #           label = "Select an event to delete."
-        #          choices = event_df$address)
+      selectInput(inputId = "delete_input",
+                  label = "Select an event to delete",
+                  choices = event_df$address),
+      actionButton(inputId = "delete_button",
+                   label = "Delete the selected event")
+    ),
+    
+    tabPanel(
+      title = "About",
+      value = "about_page",
+      h1("What is the goal of this app?"),
+      p("This app helps the Grinnell students see the events happening on campus. 
+        The goal is to bring people with similar interests together! Add events, invite people, and have fun.
+        Go to the add events page to add an event. Once you add an event, you will see a marker showing up
+        where the event is on the events screen page. You can delete an event from the delete event page. This app is worth
+        your time if you are bored and do not know what is happening on campus."),
+      h1("Design Process"),
+      h1("Acknowledgements"),
+      p("I would like to thank Professor Fernanda Elliot and our class mentor Jun for their support and
+        mentorship.")
     )
   ),
   
@@ -79,6 +91,7 @@ server <- function(input, output, session) {
     } else {
       leaflet(data=event_df) %>% setView(lng = -92.718, lat = 41.749, zoom = 15) %>%
         addTiles() %>% addMarkers(lng = ~long, lat = ~lat,
+                                  layerId = id,
                                   label = ~paste(address),
                                   popup = ~paste("Description:", description))
     }
@@ -98,6 +111,7 @@ server <- function(input, output, session) {
               leafletProxy("grinnell_map", session) %>%
                 addMarkers(lng = ~long, lat = ~lat,
                            label = ~paste(address),
+                           layerId = id,
                            popup = ~paste("Description:", description),
                            data = event_df)
               
@@ -129,6 +143,14 @@ server <- function(input, output, session) {
           }
     })
   
+  observeEvent(input$delete_button, {
+          row_id = filter(event_df, address == input$delete_input)$id[1]
+          event_df = filter(event_df, address != input$delete_input)
+          write.csv(event_df, "events.csv", row.names=FALSE)
+          
+          leafletProxy("grinnell_map", session) %>%
+            removeMarker(row_id)
+        })
 }
 
 # Run the app
