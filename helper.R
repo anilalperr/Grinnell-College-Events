@@ -1,5 +1,7 @@
 # values to store the location information
 event_df <- read.csv("events.csv")
+stats_df <- read.csv("stats.csv")
+  
 if (nrow(event_df) != 0) {
   event_df$id <- 1:nrow(event_df)
 } else {

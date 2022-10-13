@@ -66,9 +66,10 @@ ui <- fluidPage (
     tabPanel(
       title = "Event Stats",
       value = "event_stats",
-      selectInput(inputId = "value_comp",
-                  label = "Select Statistics to Compare",
-                  choices = c())
+      h3("Most Popular Events at Grinnell College"),
+      plotOutput("num_people"),
+      h3("Most Liked Events at Grinnell College"),
+      plotOutput("upvotes")
     ),
     
     tabPanel(
@@ -81,8 +82,15 @@ ui <- fluidPage (
         where the event is on the events screen page. You can delete an event from the delete event page. This app is worth
         your time if you are bored and do not know what is happening on campus."),
       h1("Design Process"),
+      p("For the school project, I made the app simple but complex enough to be
+        useful for students looking for activities going on campus. As stated in the 
+        Essence of Software, I have reused some already existent concepts such as form submission and location
+        mapping on a map. There are few tabs such as add event and delete even which are easy to understand. 
+        The System design book points out the importance of using easy to understand tab names and titles.
+        There is also no unpredictability about the system. 
+        After completing the class, my goal is to make this app/website a kind of social media rather than an open platform website like the current version."),
       h1("Acknowledgements"),
-      p("I would like to thank Professor Fernanda Elliot and our class mentor Jung for their support and
+      p("I would like to thank Professor Fernanda Eliott and our class mentor Jung for their support and
         mentorship.")
     )
   ),
@@ -159,6 +167,24 @@ server <- function(input, output, session) {
           leafletProxy("grinnell_map", session) %>%
             removeMarker(row_id)
         })
+  
+  output$num_people <- renderPlot({
+    data <- data.frame(stats_df)
+    data$event.name <- factor(data$event.name,
+                              levels=data$event.name[order(data$num.ppl, decreasing=TRUE)])
+                     
+    ggplot(data = data, mapping = aes(x=event.name, y=num.ppl)) +
+      geom_bar(stat="identity")
+  })
+  
+  output$upvotes <- renderPlot({
+    data2 <- data.frame(stats_df)
+    data2$event.name <- factor(data2$event.name,
+                              levels=data2$event.name[order(data2$upvotes, decreasing=TRUE)])
+    
+    ggplot(data = data2, mapping = aes(x=event.name, y=upvotes)) +
+      geom_bar(stat="identity")
+  })
 }
 
 # Run the app
