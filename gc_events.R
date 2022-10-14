@@ -23,22 +23,22 @@ ui <- fluidPage (
       value = "events_screen",
       leafletOutput("grinnell_map"),
     ),
-
+    
     tabPanel(
       title = "Add Event",
       value = "add_event",
-     
-       textInput(inputId = "event_address",
+      
+      textInput(inputId = "event_address",
                 label = "Enter the Address"),
-     
-       textInput(inputId = "description",
+      
+      textInput(inputId = "description",
                 label = "Event Description:"), 
       
       selectInput(inputId = "category",
                   label = "Select Event Category",
                   choices = c("Party", "Academic", "Sports", "Casual")),
-     
-       "You can find the exact latitude and longitude values by entering the event address to this link:",
+      
+      "You can find the exact latitude and longitude values by entering the event address to this link:",
       a("https://developers.google.com/maps/documentation/geocoding/overview", href= "https://developers.google.com/maps/documentation/geocoding/overview"),
       
       textInput(inputId = "latitude",
@@ -115,64 +115,64 @@ server <- function(input, output, session) {
   
   #The Add Event Tab
   observeEvent(input$submit_button, {
-          if (validateAddress(input$event_address) && validateDesc(input$description) && validateLat(input$latitude) && validateLon(input$longitude)) {
-              
-              event_df[nrow(event_df)+1,] <- c(input$event_address, input$description, input$category, input$latitude, input$longitude, nrow(event_df)+1)
-              
-              event_df$lat <- as.numeric(event_df$lat)
-              event_df$long <- as.numeric(event_df$long)
-              
-              write.csv(event_df, "events.csv", row.names=FALSE)
-              
-              leafletProxy("grinnell_map", session) %>%
-                addMarkers(lng = ~long, lat = ~lat,
-                           label = ~paste(address),
-                           layerId = id,
-                           popup = ~paste("Description:", description),
-                           data = event_df)
-              
-              updateTextInput(session, "event_address", value="")
-              updateTextInput(session, "description", value="")
-              updateTextInput(session, "latitude", value="")
-              updateTextInput(session, "longitude", value="")
-              updateSelectInput(session, "category", selected="Party")
-              
-              output$message <- renderText("")
-          } else {
-            if (!validateAddress(input$event_address)) {
-              
-              output$message <- renderText("Please enter an address.")
-              
-            } else if (!validateDesc(input$description)) {
-              
-              output$message <- renderText("Please provide a description.")
-              
-            } else if (!validateLat(input$latitude)) {
-              
-              output$message <- renderText("Please make sure that the latitude is numeric and between -90 and 90 (inclusive)")
-              
-            } else {
-              
-              output$message <- renderText("Please make sure that the longitude is numeric and between -180 and 180 (inclusive)")
-              
-            }
-          }
-    })
+    if (validateAddress(input$event_address) && validateDesc(input$description) && validateLat(input$latitude) && validateLon(input$longitude)) {
+      
+      event_df[nrow(event_df)+1,] <- c(input$event_address, input$description, input$category, input$latitude, input$longitude, nrow(event_df)+1)
+      
+      event_df$lat <- as.numeric(event_df$lat)
+      event_df$long <- as.numeric(event_df$long)
+      
+      write.csv(event_df, "events.csv", row.names=FALSE)
+      
+      leafletProxy("grinnell_map", session) %>%
+        addMarkers(lng = ~long, lat = ~lat,
+                   label = ~paste(address),
+                   layerId = id,
+                   popup = ~paste("Description:", description),
+                   data = event_df)
+      
+      updateTextInput(session, "event_address", value="")
+      updateTextInput(session, "description", value="")
+      updateTextInput(session, "latitude", value="")
+      updateTextInput(session, "longitude", value="")
+      updateSelectInput(session, "category", selected="Party")
+      
+      output$message <- renderText("")
+    } else {
+      if (!validateAddress(input$event_address)) {
+        
+        output$message <- renderText("Please enter an address.")
+        
+      } else if (!validateDesc(input$description)) {
+        
+        output$message <- renderText("Please provide a description.")
+        
+      } else if (!validateLat(input$latitude)) {
+        
+        output$message <- renderText("Please make sure that the latitude is numeric and between -90 and 90 (inclusive)")
+        
+      } else {
+        
+        output$message <- renderText("Please make sure that the longitude is numeric and between -180 and 180 (inclusive)")
+        
+      }
+    }
+  })
   
   observeEvent(input$delete_button, {
-          row_id = filter(event_df, address == input$delete_input)$id[1]
-          event_df = filter(event_df, address != input$delete_input)
-          write.csv(event_df, "events.csv", row.names=FALSE)
-          
-          leafletProxy("grinnell_map", session) %>%
-            removeMarker(row_id)
-        })
+    row_id = filter(event_df, address == input$delete_input)$id[1]
+    event_df = filter(event_df, address != input$delete_input)
+    write.csv(event_df, "events.csv", row.names=FALSE)
+    
+    leafletProxy("grinnell_map", session) %>%
+      removeMarker(row_id)
+  })
   
   output$num_people <- renderPlot({
     data <- data.frame(stats_df)
     data$event.name <- factor(data$event.name,
                               levels=data$event.name[order(data$num.ppl, decreasing=TRUE)])
-                     
+    
     ggplot(data = data, mapping = aes(x=event.name, y=num.ppl)) +
       geom_bar(stat="identity")
   })
@@ -180,7 +180,7 @@ server <- function(input, output, session) {
   output$upvotes <- renderPlot({
     data2 <- data.frame(stats_df)
     data2$event.name <- factor(data2$event.name,
-                              levels=data2$event.name[order(data2$upvotes, decreasing=TRUE)])
+                               levels=data2$event.name[order(data2$upvotes, decreasing=TRUE)])
     
     ggplot(data = data2, mapping = aes(x=event.name, y=upvotes)) +
       geom_bar(stat="identity")
